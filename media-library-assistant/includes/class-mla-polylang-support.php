@@ -105,7 +105,7 @@ class MLA_Polylang {
 		add_filter( 'mla_list_table_build_inline_data', 'MLA_Polylang::mla_list_table_build_inline_data', 10, 2 );
 
 		// Defined in various /media-library-assistant/includes/class-mla-settings-*-tab.php
-		add_filter( 'mla_setting_table_submenu_arguments', array( $this, 'mla_list_table_submenu_arguments' ), 10, 2 );
+		add_filter( 'mla_setting_table_submenu_arguments', 'MLA_Polylang::mla_list_table_submenu_arguments', 10, 2 );
 
 		// Defined in /media-library-assistant/includes/class-mla-objects.php
 		//add_filter( 'mla_taxonomy_get_columns', 'MLA_Polylang::mla_taxonomy_get_columns', 10, 3 );
@@ -1514,7 +1514,7 @@ class MLA_Polylang {
 		MLACore::mla_debug_add( __LINE__ . " MLA_Polylang::edit_attachment( {$post_id} ) _REQUEST = " . var_export( $_REQUEST, true ), MLACore::MLA_DEBUG_CATEGORY_LANGUAGE );
 
 		// mla_update_single_item may call this action again
-		if ( $already_updating == $post_id ) {
+		if ( $already_updating === $post_id ) {
 			return;
 		} else {
 			$already_updating = $post_id;
@@ -1541,8 +1541,13 @@ class MLA_Polylang {
 			return;
 		} // Upload New Media Bulk Edit
 
+		// For the Bulk Edit "Map IPTC/EXIF/WP metadata" action, ignore the tax_input
+		if ( isset( $_REQUEST['bulk_action'] ) && 'bulk_map' === $_REQUEST['bulk_action'] ) {
+			return;
+		}
+
 		// For the Bulk Edit action on the Media/Assistant screen, only synchronization is needed
-		if ( ! ( isset( $_REQUEST['bulk_action'] ) && 'bulk_edit' == $_REQUEST['bulk_action'] ) ) {
+		if ( ! ( isset( $_REQUEST['bulk_action'] ) && 'bulk_edit' === $_REQUEST['bulk_action'] ) ) {
 			/*
 			 * This is the Media/Edit Media screen.
 			 * The category taxonomy (edit screens) is a special case because 
